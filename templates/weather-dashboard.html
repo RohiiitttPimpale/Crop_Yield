@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartAgri - Weather Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+        .weather-icon { animation: weatherFloat 4s ease-in-out infinite; }
+        @keyframes weatherFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-white to-blue-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur-md border-b border-blue-200 px-8 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <a href="{{ url_for('dashboard') }}" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                    <i data-lucide="arrow-left" class="w-5 h-5 text-gray-600"></i>
+                </a>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">Weather Dashboard</h1>
+                    <p class="text-gray-600">Real-time weather data and forecasts</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto p-8">
+        <!-- Current Weather -->
+        <div class="bg-gradient-to-r from-blue-500 to-cyan-600 rounded-3xl p-8 text-white mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-4xl font-bold mb-2">28°C</h2>
+                    <p class="text-xl mb-4">Partly Cloudy</p>
+                    <p class="text-blue-100">Ludhiana, Punjab • Today</p>
+                </div>
+                <div class="weather-icon">
+                    <i data-lucide="cloud-sun" class="w-24 h-24"></i>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8">
+                <div class="text-center">
+                    <i data-lucide="droplets" class="w-6 h-6 mx-auto mb-2 text-blue-200"></i>
+                    <div class="text-sm text-blue-200">Humidity</div>
+                    <div class="text-2xl font-bold">65%</div>
+                </div>
+                <div class="text-center">
+                    <i data-lucide="wind" class="w-6 h-6 mx-auto mb-2 text-blue-200"></i>
+                    <div class="text-sm text-blue-200">Wind</div>
+                    <div class="text-2xl font-bold">12 km/h</div>
+                </div>
+                <div class="text-center">
+                    <i data-lucide="cloud-rain" class="w-6 h-6 mx-auto mb-2 text-blue-200"></i>
+                    <div class="text-sm text-blue-200">Rain</div>
+                    <div class="text-2xl font-bold">20%</div>
+                </div>
+                <div class="text-center">
+                    <i data-lucide="gauge" class="w-6 h-6 mx-auto mb-2 text-blue-200"></i>
+                    <div class="text-sm text-blue-200">Pressure</div>
+                    <div class="text-2xl font-bold">1013 hPa</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7-Day Forecast -->
+        <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-blue-100 mb-8">
+            <h3 class="text-xl font-bold text-gray-800 mb-6">7-Day Forecast</h3>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between p-4 bg-blue-50 rounded-xl">
+                    <div class="flex items-center space-x-4">
+                        <i data-lucide="sun" class="w-8 h-8 text-yellow-500"></i>
+                        <div>
+                            <div class="font-medium text-gray-800">Today</div>
+                            <div class="text-sm text-gray-600">Sunny</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-gray-600">32°/22°</span>
+                        <div class="flex items-center space-x-2 text-sm text-gray-600">
+                            <i data-lucide="droplets" class="w-4 h-4"></i>
+                            <span>10%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between p-4 hover:bg-gray-50 rounded-xl transition-colors">
+                    <div class="flex items-center space-x-4">
+                        <i data-lucide="cloud-rain" class="w-8 h-8 text-blue-500"></i>
+                        <div>
+                            <div class="font-medium text-gray-800">Tomorrow</div>
+                            <div class="text-sm text-gray-600">Light Rain</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-gray-600">26°/20°</span>
+                        <div class="flex items-center space-x-2 text-sm text-gray-600">
+                            <i data-lucide="droplets" class="w-4 h-4"></i>
+                            <span>75%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weather Charts -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-green-100">
+                <h3 class="text-xl font-bold text-gray-800 mb-6">Temperature Trend</h3>
+                <div class="h-64">
+                    <canvas id="temperatureChart"></canvas>
+                </div>
+            </div>
+            <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-blue-100">
+                <h3 class="text-xl font-bold text-gray-800 mb-6">Rainfall This Month</h3>
+                <div class="h-64">
+                    <canvas id="rainfallChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // Temperature Chart
+        const tempCtx = document.getElementById('temperatureChart').getContext('2d');
+        new Chart(tempCtx, {
+            type: 'line',
+            data: {
+                labels: ['6 AM', '9 AM', '12 PM', '3 PM', '6 PM', '9 PM'],
+                datasets: [{
+                    label: 'Temperature (°C)',
+                    data: [22, 26, 30, 32, 28, 24],
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        // Rainfall Chart
+        const rainCtx = document.getElementById('rainfallChart').getContext('2d');
+        new Chart(rainCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                datasets: [{
+                    label: 'Rainfall (mm)',
+                    data: [25, 42, 18, 35],
+                    backgroundColor: 'rgba(34, 197, 94, 0.8)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    </script>
+</body>
+</html>

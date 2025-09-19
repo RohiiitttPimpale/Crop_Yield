@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartAgri - Farmer Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .profile-card {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(34, 197, 94, 0.05) 100%);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-50 via-white to-emerald-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur-md border-b border-green-200 px-8 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <a href="{{ url_for('dashboard') }}" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                    <i data-lucide="arrow-left" class="w-5 h-5 text-gray-600"></i>
+                </a>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">Farmer Profile</h1>
+                    <p class="text-gray-600">Manage your farming information</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                    <i data-lucide="bell" class="w-5 h-5 text-gray-600"></i>
+                </button>
+                <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                    <i data-lucide="settings" class="w-5 h-5 text-gray-600"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto p-8">
+        <!-- Profile Header Card -->
+        <div class="profile-card rounded-3xl p-8 mb-8 relative overflow-hidden">
+            <div class="flex items-center space-x-6">
+                <div class="relative">
+                    <div class="w-24 h-24 bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center text-white text-3xl font-bold">
+                        JD
+                    </div>
+                    <button class="absolute -bottom-2 -right-2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors">
+                        <i data-lucide="camera" class="w-4 h-4 text-white"></i>
+                    </button>
+                </div>
+                <div class="flex-1">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">John Farmer</h2>
+                    <p class="text-gray-600 mb-4">Experienced Rice & Vegetable Farmer</p>
+                    <div class="flex items-center space-x-6 text-sm text-gray-600">
+                        <div class="flex items-center space-x-2">
+                            <i data-lucide="map-pin" class="w-4 h-4"></i>
+                            <span>Punjab, India</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i data-lucide="calendar" class="w-4 h-4"></i>
+                            <span>15 years experience</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i data-lucide="award" class="w-4 h-4"></i>
+                            <span>Verified Farmer</span>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="toggleEditMode()" class="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-medium">
+                    <i data-lucide="edit" class="w-4 h-4 mr-2 inline"></i>
+                    Edit Profile
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-2 mb-8 border border-green-100">
+            <div class="flex space-x-2">
+                <button onclick="showTab('personal')" class="tab-btn active flex-1 px-6 py-3 text-center font-medium rounded-xl transition-all">
+                    <i data-lucide="user" class="w-4 h-4 mr-2 inline"></i>
+                    Personal Info
+                </button>
+                <button onclick="showTab('farm')" class="tab-btn flex-1 px-6 py-3 text-center font-medium rounded-xl transition-all">
+                    <i data-lucide="map" class="w-4 h-4 mr-2 inline"></i>
+                    Farm Details
+                </button>
+                <button onclick="showTab('crops')" class="tab-btn flex-1 px-6 py-3 text-center font-medium rounded-xl transition-all">
+                    <i data-lucide="sprout" class="w-4 h-4 mr-2 inline"></i>
+                    Crops & Livestock
+                </button>
+                <button onclick="showTab('preferences')" class="tab-btn flex-1 px-6 py-3 text-center font-medium rounded-xl transition-all">
+                    <i data-lucide="settings" class="w-4 h-4 mr-2 inline"></i>
+                    Preferences
+                </button>
+            </div>
+        </div>
+
+        <!-- Personal Information Tab -->
+        <div id="personal" class="tab-content active">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Basic Information -->
+                <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-green-100">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                        <i data-lucide="user" class="w-5 h-5 mr-3 text-green-600"></i>
+                        Basic Information
+                    </h3>
+                    <form class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                                <input type="text" value="John" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                                <input type="text" value="Farmer" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                            <input type="email" value="john.farmer@email.com" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                            <input type="tel" value="+91 98765 43210" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
+                            <input type="date" value="1985-03-15" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-blue-100">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                        <i data-lucide="map-pin" class="w-5 h-5 mr-3 text-blue-600"></i>
+                        Address Information
+                    </h3>
+                    <form class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Street Address</label>
+                            <input type="text" value="Village Khanna, Tehsil Ludhiana" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">City</label>
+                                <input type="text" value="Ludhiana" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">State/Province</label>
+                                <select class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option>Punjab</option>
+                                    <option>Haryana</option>
+                                    <option>Uttar Pradesh</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">PIN Code</label>
+                                <input type="text" value="141120" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Country</label>
+                                <select class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option>India</option>
+                                    <option>USA</option>
+                                    <option>Canada</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-end space-x-4">
+                <button class="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors">
+                    Cancel
+                </button>
+                <button class="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors">
+                    Save Changes
+                </button>
+            </div>
+        </div>
+
+        <!-- Farm Details Tab -->
+        <div id="farm" class="tab-content">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Farm Information -->
+                <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-emerald-100">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                        <i data-lucide="home" class="w-5 h-5 mr-3 text-emerald-600"></i>
+                        Farm Information
+                    </h3>
+                    <form class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Farm Name</label>
+                            <input type="text" value="Green Valley Farm" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Total Area (acres)</label>
+                                <input type="number" value="25.4" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Cultivated Area (acres)</label>
+                                <input type="number" value="22.1" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Farm Type</label>
+                            <select class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+                                <option>Mixed Farming</option>
+                                <option>Crop Farming</option>
+                                <option>Livestock Farming</option>
+                                <option>Organic Farming</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Irrigation Type</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" checked class="rounded text-emerald-600 focus:ring-emerald-500">
+                                    <span class="ml-2 text-gray-700">Drip Irrigation</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="rounded text-emerald-600 focus:ring-emerald-500">
+                                    <span class="ml-2 text-gray-700">Sprinkler System</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" checked class="rounded text-emerald-600 focus:ring-emerald-500">
+                                    <span class="ml-2 text-gray-700">Canal Irrigation</span>
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Soil & Climate -->
+                <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-orange-100">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                        <i data-lucide="thermometer" class="w-5 h-5 mr-3 text-orange-600"></i>
+                        Soil & Climate
+                    </h3>
+                    <form class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Soil Type</label>
+                            <select class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                                <option>Alluvial Soil</option>
+                                <option>Clay Soil</option>
+                                <option>Sandy Soil</option>
+                                <option>Loamy Soil</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">pH Level</label>
+                                <input type="number" value="6.8" step="0.1" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Average Rainfall (mm)</label>
+                                <input type="number" value="750" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Climate Zone</label>
+                            <select class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+                                <option>Semi-Arid</option>
+                                <option>Tropical</option>
+                                <option>Subtropical</option>
+                                <option>Temperate</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Water Source</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" checked class="rounded text-orange-600 focus:ring-orange-500">
+                                    <span class="ml-2 text-gray-700">Tube Well</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="rounded text-orange-600 focus:ring-orange-500">
+                                    <span class="ml-2 text-gray-700">Canal</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" checked class="rounded text-orange-600 focus:ring-orange-500">
+                                    <span class="ml-2 text-gray-700">Rainwater Harvesting</span>
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-end space-x-4">
+                <button class="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors">
+                    Cancel
+                </button>
+                <button class="px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors">
+                    Save Farm Details
+                </button>
+            </div>
+        </div>
+
+        <!-- Crops & Livestock Tab -->
+        <div id="crops" class="tab-content">
+            <div class="space-y-8">
+                <!-- Current Crops -->
+                <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-green-100">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl font-bold text-gray-800 flex items-center">
+                            <i data-lucide="sprout" class="w-5 h-5 mr-3 text-green-600"></i>
+                            Current Crops
+                        </h3>
+                        <button class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                            <i data-lucide="plus" class="w-4 h-4 mr-2 inline"></i>
+                            Add Crop
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Rice -->
+                        <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <h4 class="font-semibold text-gray-800">Rice</h4>
+                                <span class="text-xs bg-green-600 text-white px-2 py-1 rounded-full">Growing</span>
+                            </div>
+                            <div class="space-y-2 text-sm text-gray-600">
+                                <div class="flex justify-between">
+                                    <span>Area:</span>
+                                    <span class="font-medium">10 acres</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Variety:</span>
+                                    <span class="font-medium">Basmati</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Planted:</span>
+                                    <span class="font-medium">June 2024</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Expected Harvest:</span>
+                                    <span class="font-medium">October 2024</span>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2 mt-4">
+                                <button class="flex-1 px-3 py-2 bg-green-600 text-white text-xs rounded-lg hover:bg-green-700 transition-colors">
+                                    View Details
+                                </button>
+                                <button class="px-3 py-2 border border-gray-300 text-gray-600 text-xs rounded-lg hover:bg-gray-50 transition-colors">
+                                    Edit
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Corn -->
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <h4 class="font-semibold text-gray-800">Corn</h4>
+                                <span class="text-xs bg-yellow-600 text-white px-2 py-1 rounded-full">Flowering</span>
+                            </div>
+                            <div class="space-y-2 text-sm text-gray-600">
+                                <div class="flex justify-between">
+                                    <span>Area:</span>
+                                    <span class="font-medium">5 acres</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Variety:</span>
+                                    <span class="font-medium">Sweet Corn</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Planted:</span>
+                                    <span class="font-medium">May 2024</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Expected Harvest:</span>
+                                    <span class="font-medium">September 2024</span>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2 mt-4">
+                                <button class="flex-1 px-3 py-2 bg-yellow-600 text-white text-xs rounded-lg hover:bg-yellow-700 transition-colors">
+                                    View Details
+                                </button>
+                                <button class="px-3 py-2 border border-gray-300 text-gray-600 text-xs rounded-lg hover:bg-gray-50 transition-colors">
+                                    Edit
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Tomatoes -->
+                        <div class="bg-red-50 border border-red-200 rounded-xl p-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <h4 class="font-semibold text-gray-800">Tomatoes</h4>
+                                <span class="text-xs bg-red-600 text-white px-2 py-1 rounded-full">Ready</span>
+                            </div>
+                            <div class="space-y-2 text-sm text-gray-600">
+                                <div class="flex justify-between">
+                                    <span>Area:</span>
+                                    <span class="font-medium">3 acres</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Variety:</span>
+                                    <span class="font-medium">Roma</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Planted:</span>
+                                    <span class="font-medium">April 2024</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Expected Harvest:</span>
+                                    <span class="font-medium">August 2024</span>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2 mt-4">
+                                <button class="flex-1 px-3 py-2 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700 transition-colors">
+                                    Harvest Now
+                                </button>
+                                <button class="px-3 py-2 border border-gray-300 text-gray-600 text-xs rounded-lg hover:bg-gray-50 transition-colors">
+                                    Edit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Livestock -->
+                <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-purple-100">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl font-bold text-gray-800 flex items-center">
+                            <i data-lucide="cow" class="w-5 h-5 mr-3 text-purple-600"></i>
+                            Livestock
+                        </h3>
+                        <button class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                            <i data-lucide="plus" class="w-4 h-4 mr-2 inline"></i>
+                            Add Livestock
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Cows -->
+                        <div class="text-center p-6 bg-purple-50 border border-purple-200 rounded-xl">
+                            <i data-lucide="cow" class="w-12 h-12 text-purple-600 mx-auto mb-4"></i>
+                            <h4 class="font-semibold text-gray-800 mb-2">Dairy Cows</h4>
+                            <div class="text-3xl font-bold text-purple-600 mb-2">12</div>
+                            <p class="text-sm text-gray-600">Holstein Friesian</p>
+                        </div>
+
+                        <!-- Goats -->
+                        <div class="text-center p-6 bg-green-50 border border-green-200 rounded-xl">
+                            <i data-lucide="rabbit" class="w-12 h-12 text-green-600 mx-auto mb-4"></i>
+                            <h4 class="font-semibold text-gray-800 mb-2">Goats</h4>
+                            <div class="text-3xl font-bold text-green-600 mb-2">25</div>
+                            <p class="text-sm text-gray-600">Boer & Kiko</p>
+                        </div>
+
+                        <!-- Chickens -->
+                        <div class="text-center p-6 bg-orange-50 border border-orange-200 rounded-xl">
+                            <i data-lucide="bird" class="w-12 h-12 text-orange-600 mx-auto mb-4"></i>
+                            <h4 class="font-semibold text-gray-800 mb-2">Chickens</h4>
+                            <div class="text-3xl font-bold text-orange-600 mb-2">150</div>
+                            <p class="text-sm text-gray-600">Rhode Island Red</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-end space-x-4">
+                <button class="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors">
+                    Cancel
+                </button>
+                <button class="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors">
+                    Save Crop Data
+                </button>
+            </div>
+        </div>
+
+        <!-- Preferences Tab -->
+        <div id="preferences" class="tab-content">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Notification Preferences -->
+                <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-indigo-100">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                        <i data-lucide="bell" class="w-5 h-5 mr-3 text-indigo-600"></i>
+                        Notification Preferences
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-medium text-gray-800">Weather Alerts</h4>
+                                <p class="text-sm text-gray-600">Get notified about severe weather conditions</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-medium text-gray-800">Irrigation Reminders</h4>
+                                <p class="text-sm text-gray-600">Reminders for watering schedules</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-medium text-gray-800">Harvest Reminders</h4>
+                                <p class="text-sm text-gray-600">Optimal harvest time notifications</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-medium text-gray-800">Market Prices</h4>
+                                <p class="text-sm text-gray-600">Daily market price updates</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" checked class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Display Preferences -->
+                <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-cyan-100">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                        <i data-lucide="monitor" class="w-5 h-5 mr-3 text-cyan-600"></i>
+                        Display Preferences
+                    </h3>
+                    <form class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Language</label>
+                            <select class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                                <option>English</option>
+                                <option>Hindi</option>
+                                <option>Punjabi</option>
+                                <option>Tamil</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Temperature Unit</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="radio" name="temperature" value="celsius" checked class="text-cyan-600 focus:ring-cyan-500">
+                                    <span class="ml-2 text-gray-700">Celsius (°C)</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="temperature" value="fahrenheit" class="text-cyan-600 focus:ring-cyan-500">
+                                    <span class="ml-2 text-gray-700">Fahrenheit (°F)</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Date Format</label>
+                            <select class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                                <option>DD/MM/YYYY</option>
+                                <option>MM/DD/YYYY</option>
+                                <option>YYYY-MM-DD</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Theme</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="radio" name="theme" value="light" checked class="text-cyan-600 focus:ring-cyan-500">
+                                    <span class="ml-2 text-gray-700">Light Mode</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="theme" value="dark" class="text-cyan-600 focus:ring-cyan-500">
+                                    <span class="ml-2 text-gray-700">Dark Mode</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="theme" value="auto" class="text-cyan-600 focus:ring-cyan-500">
+                                    <span class="ml-2 text-gray-700">Auto (System)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-end space-x-4">
+                <button class="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors">
+                    Reset to Default
+                </button>
+                <button class="px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors">
+                    Save Preferences
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Tab functionality
+        function showTab(tabName) {
+            // Hide all tab contents
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Remove active class from all tab buttons
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            tabBtns.forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.add('text-gray-600', 'hover:bg-gray-100');
+                btn.classList.remove('text-white', 'bg-green-600');
+            });
+
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+
+            // Add active class to clicked tab button
+            event.target.classList.add('active');
+            event.target.classList.remove('text-gray-600', 'hover:bg-gray-100');
+            event.target.classList.add('text-white', 'bg-green-600');
+        }
+
+        // Set initial active tab styling
+        document.addEventListener('DOMContentLoaded', function() {
+            const activeTab = document.querySelector('.tab-btn.active');
+            if (activeTab) {
+                activeTab.classList.remove('text-gray-600', 'hover:bg-gray-100');
+                activeTab.classList.add('text-white', 'bg-green-600');
+            }
+        });
+
+        // Edit mode toggle
+        function toggleEditMode() {
+            const inputs = document.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                input.disabled = !input.disabled;
+            });
+        }
+    </script>
+</body>
+</html>

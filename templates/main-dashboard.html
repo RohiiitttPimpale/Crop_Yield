@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartAgri - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        * { font-family: 'Inter', sans-serif; }
+        .crop-float { animation: cropFloat 8s ease-in-out infinite; }
+        .crop-float:nth-child(2) { animation-delay: -2s; }
+        .crop-float:nth-child(3) { animation-delay: -4s; }
+        @keyframes cropFloat {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-10px) scale(1.05); }
+        }
+        .weather-animation { animation: weatherPulse 4s ease-in-out infinite; }
+        @keyframes weatherPulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(34, 197, 94, 0.05) 25%, rgba(101, 163, 13, 0.1) 50%, rgba(132, 204, 22, 0.05) 75%, rgba(16, 185, 129, 0.1) 100%);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-50 via-white to-emerald-50 min-h-screen">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-white/80 backdrop-blur-md border-r border-green-200 flex flex-col">
+            <!-- Logo -->
+            <div class="p-6 border-b border-green-100">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                        <i data-lucide="sprout" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold text-gray-800">SmartAgri</h1>
+                        <p class="text-xs text-gray-500">AI-Powered Farming</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 p-4 space-y-2">
+                <a href="{{ url_for('dashboard') }}" class="nav-item active flex items-center space-x-3 px-4 py-3 rounded-xl text-green-700 bg-green-100 hover:bg-green-200 transition-all">
+                    <i data-lucide="home" class="w-5 h-5"></i>
+                    <span class="font-medium">Dashboard</span>
+                </a>
+                <a href="{{ url_for('farmer_profile') }}" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-100 transition-all">
+                    <i data-lucide="user" class="w-5 h-5"></i>
+                    <span class="font-medium">Farmer Profile</span>
+                </a>
+                <a href="{{ url_for('weather') }}" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-100 transition-all">
+                    <i data-lucide="cloud-rain" class="w-5 h-5"></i>
+                    <span class="font-medium">Weather</span>
+                </a>
+                <a href="{{ url_for('crop_planning') }}" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-100 transition-all">
+                    <i data-lucide="calendar" class="w-5 h-5"></i>
+                    <span class="font-medium">Crop Planning</span>
+                </a>
+                <a href="{{ url_for('yield_predictor') }}" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-100 transition-all">
+                    <i data-lucide="brain" class="w-5 h-5"></i>
+                    <span class="font-medium">AI Predictions</span>
+                </a>
+                <a href="{{ url_for('yield_records') }}" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-100 transition-all">
+                    <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+                    <span class="font-medium">Yield Records</span>
+                </a>
+                <a href="{{ url_for('recommendations') }}" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-100 transition-all">
+                    <i data-lucide="lightbulb" class="w-5 h-5"></i>
+                    <span class="font-medium">Recommendations</span>
+                </a>
+                <a href="{{ url_for('reports') }}" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-100 transition-all">
+                    <i data-lucide="file-text" class="w-5 h-5"></i>
+                    <span class="font-medium">Reports</span>
+                </a>
+            </nav>
+
+            <!-- User Profile -->
+            <div class="p-4 border-t border-green-100">
+                <div class="flex items-center space-x-3 px-4 py-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
+                        <span class="text-white font-medium text-sm">JD</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-700">John Farmer</p>
+                        <p class="text-xs text-gray-500">Farmer</p>
+                    </div>
+                    <button class="p-1 hover:bg-gray-100 rounded">
+                        <i data-lucide="more-vertical" class="w-4 h-4 text-gray-400"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header class="bg-white/80 backdrop-blur-md border-b border-green-200 px-8 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Dashboard</h2>
+                        <p class="text-gray-600">Welcome back, Farmer!</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                            <i data-lucide="bell" class="w-5 h-5 text-gray-600"></i>
+                        </button>
+                        <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                            <i data-lucide="settings" class="w-5 h-5 text-gray-600"></i>
+                        </button>
+                        <div class="h-6 w-px bg-gray-300"></div>
+                        <select class="text-sm border-0 bg-transparent text-gray-600 focus:ring-0">
+                            <option>EN</option>
+                            <option>HI</option>
+                        </select>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="flex-1 overflow-y-auto p-8">
+                <!-- Hero Section -->
+                <div class="gradient-bg rounded-3xl p-8 mb-8 relative overflow-hidden">
+                    <div class="relative z-10">
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Smart Farming with AI</h1>
+                        <p class="text-xl text-gray-600 mb-6 max-w-2xl">
+                            Monitor your crops, predict yields, and optimize your farming decisions with our AI-powered platform.
+                        </p>
+                        <button onclick="window.location.href='{{ url_for('yield_predictor') }}'" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl">
+                            <i data-lucide="zap" class="w-5 h-5 mr-2"></i>
+                            Get AI Predictions
+                        </button>
+                    </div>
+
+                    <!-- Floating elements -->
+                    <div class="absolute top-8 right-8 crop-float opacity-20">
+                        <i data-lucide="leaf" class="w-16 h-16 text-green-600"></i>
+                    </div>
+                    <div class="absolute bottom-8 right-24 crop-float opacity-15">
+                        <i data-lucide="sun" class="w-12 h-12 text-yellow-500"></i>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- Total Area -->
+                    <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-green-100 hover:shadow-lg transition-all duration-300">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="p-3 bg-green-100 rounded-xl">
+                                <i data-lucide="map" class="w-6 h-6 text-green-600"></i>
+                            </div>
+                            <span class="text-sm text-gray-500">Total Area</span>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="text-3xl font-bold text-gray-800">25.4</div>
+                            <div class="text-sm text-gray-600">acres</div>
+                        </div>
+                    </div>
+
+                    <!-- Active Crops -->
+                    <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-blue-100 hover:shadow-lg transition-all duration-300">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="p-3 bg-blue-100 rounded-xl">
+                                <i data-lucide="sprout" class="w-6 h-6 text-blue-600"></i>
+                            </div>
+                            <span class="text-sm text-gray-500">Active Crops</span>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="text-3xl font-bold text-gray-800">8</div>
+                            <div class="text-sm text-gray-600">varieties</div>
+                        </div>
+                    </div>
+
+                    <!-- Predicted Yield -->
+                    <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-purple-100 hover:shadow-lg transition-all duration-300">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="p-3 bg-purple-100 rounded-xl">
+                                <i data-lucide="trending-up" class="w-6 h-6 text-purple-600"></i>
+                            </div>
+                            <span class="text-sm text-gray-500">Predicted Yield</span>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="text-3xl font-bold text-gray-800">4.2</div>
+                            <div class="text-sm text-gray-600">tons</div>
+                        </div>
+                    </div>
+
+                    <!-- Revenue -->
+                    <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-yellow-100 hover:shadow-lg transition-all duration-300">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="p-3 bg-yellow-100 rounded-xl">
+                                <i data-lucide="indian-rupee" class="w-6 h-6 text-yellow-600"></i>
+                            </div>
+                            <span class="text-sm text-gray-500">Revenue</span>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="text-3xl font-bold text-gray-800">₹1.2L</div>
+                            <div class="text-sm text-gray-600">estimated</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Dashboard Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Weather Today -->
+                    <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-blue-100">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800">Weather Today</h3>
+                            <div class="weather-animation">
+                                <i data-lucide="sun" class="w-6 h-6 text-yellow-500"></i>
+                            </div>
+                        </div>
+
+                        <div class="text-center mb-6">
+                            <div class="text-4xl font-bold text-gray-800 mb-2">28°C</div>
+                            <div class="text-gray-600">Partly Cloudy</div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div class="flex items-center space-x-2">
+                                <i data-lucide="droplets" class="w-4 h-4 text-blue-500"></i>
+                                <span class="text-gray-600">Humidity: 65%</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i data-lucide="wind" class="w-4 h-4 text-gray-500"></i>
+                                <span class="text-gray-600">Wind: 12 km/h</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i data-lucide="cloud-rain" class="w-4 h-4 text-blue-500"></i>
+                                <span class="text-gray-600">Rain: 20%</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i data-lucide="gauge" class="w-4 h-4 text-gray-500"></i>
+                                <span class="text-gray-600">Pressure: 1013 hPa</span>
+                            </div>
+                        </div>
+
+                        <button onclick="window.location.href='{{ url_for('weather') }}'" class="w-full mt-4 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium">
+                            View Details
+                        </button>
+                    </div>
+
+                    <!-- Yield Predictions Chart -->
+                    <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-green-100">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800">Yield Predictions</h3>
+                            <button onclick="window.location.href='{{ url_for('yield_predictor') }}'" class="text-green-600 hover:text-green-700 text-sm font-medium">
+                                View Details
+                            </button>
+                        </div>
+
+                        <div class="relative h-48">
+                            <canvas id="yieldChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Your Crops -->
+                    <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-emerald-100">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800">Your Crops</h3>
+                            <button onclick="window.location.href='{{ url_for('crop_planning') }}'" class="text-emerald-600 hover:text-emerald-700 text-sm font-medium">
+                                Manage
+                            </button>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                                    <span class="text-gray-700 font-medium">Rice</span>
+                                </div>
+                                <span class="text-gray-600 text-sm">10 acres</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                                    <span class="text-gray-700 font-medium">Corn</span>
+                                </div>
+                                <span class="text-gray-600 text-sm">5 acres</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                                    <span class="text-gray-700 font-medium">Tomatoes</span>
+                                </div>
+                                <span class="text-gray-600 text-sm">3 acres</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
+                                    <span class="text-gray-700 font-medium">Grapes</span>
+                                </div>
+                                <span class="text-gray-600 text-sm">2 acres</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-pink-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-3 h-3 bg-pink-500 rounded-full"></div>
+                                    <span class="text-gray-700 font-medium">Apples</span>
+                                </div>
+                                <span class="text-gray-600 text-sm">3 acres</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-emerald-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-3 h-3 bg-emerald-500 rounded-full"></div>
+                                    <span class="text-gray-700 font-medium">Lettuce</span>
+                                </div>
+                                <span class="text-gray-600 text-sm">2 acres</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Smart Recommendations -->
+                <div class="mt-8">
+                    <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-orange-100">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800">Smart Recommendations</h3>
+                            <button onclick="window.location.href='{{ url_for('recommendations') }}'" class="text-orange-600 hover:text-orange-700 text-sm font-medium">
+                                View All
+                            </button>
+                        </div>
+
+                        <div class="space-y-4">
+                            <!-- Irrigation Alert -->
+                            <div class="flex items-start space-x-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                <div class="p-2 bg-blue-100 rounded-lg">
+                                    <i data-lucide="droplets" class="w-5 h-5 text-blue-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-medium text-gray-800 mb-1">Irrigation Alert</h4>
+                                    <p class="text-gray-600 text-sm mb-2">Your rice crop needs watering. Soil moisture is at 35%.</p>
+                                    <span class="text-xs text-gray-500">2 hours ago</span>
+                                </div>
+                            </div>
+
+                            <!-- Pest Warning -->
+                            <div class="flex items-start space-x-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                                <div class="p-2 bg-red-100 rounded-lg">
+                                    <i data-lucide="bug" class="w-5 h-5 text-red-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-medium text-gray-800 mb-1">Pest Warning</h4>
+                                    <p class="text-gray-600 text-sm mb-2">Potential aphid outbreak detected in corn field. Apply treatment.</p>
+                                    <span class="text-xs text-gray-500">5 hours ago</span>
+                                </div>
+                            </div>
+
+                            <!-- Harvest Ready -->
+                            <div class="flex items-start space-x-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                                <div class="p-2 bg-green-100 rounded-lg">
+                                    <i data-lucide="scissors" class="w-5 h-5 text-green-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-medium text-gray-800 mb-1">Harvest Ready</h4>
+                                    <p class="text-gray-600 text-sm mb-2">Tomatoes are ready for harvest. Optimal time is this week.</p>
+                                    <span class="text-xs text-gray-500">1 day ago</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Initialize Chart.js
+        const ctx = document.getElementById('yieldChart').getContext('2d');
+        const yieldChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [
+                    {
+                        label: 'Predicted Yield (tons)',
+                        data: [3.2, 3.8, 4.1, 4.5, 4.8, 5.2],
+                        borderColor: 'rgb(16, 185, 129)',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Actual Yield (tons)',
+                        data: [3.0, 3.5, 3.9, 4.2, 4.4, null],
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
