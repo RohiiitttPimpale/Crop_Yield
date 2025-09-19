@@ -4,7 +4,7 @@ import numpy as np
 import os
 
 app = Flask(__name__)
-app.secret_key = '124421'  # Add secret key for flash messages
+app.secret_key = os.environ.get("FLASK_KEY")  # Add secret key for flash messages
 
 # Load models with error handling
 try:
@@ -172,4 +172,4 @@ def internal_error(error):
     return render_template("500.html"), 500
 
 if __name__ == "__main__":
-    app.run(debug=True, host='127.0.0.1', port=5000)
+    app.run()
