@@ -112,7 +112,7 @@ def yield_predictor():
                 return render_template("yield-predictor.html", produce=0, error=error_message)
 
             # Prepare data for model (your existing format)
-            data = [["Sundargarh",5.9, 0.6, 685.8,69.45,27.83,39.1,16.3,35,35]]
+            data = [["Sundargarh",ph_float, 0.6, rainfall_float,69.45,temper_float,39.1,16.3,35,35]]
 
             # Transform and predict
             data_transformed = pipeline.transform(data)
