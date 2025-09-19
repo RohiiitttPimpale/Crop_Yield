@@ -1,32 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartAgri - Login</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        * { font-family: 'Inter', sans-serif; }
-        .gradient-text {
-            background: linear-gradient(135deg, #10b981, #059669, #047857);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .floating-element {
-            animation: float 6s ease-in-out infinite;
-        }
-        .floating-element:nth-child(2) { animation-delay: -2s; }
-        .floating-element:nth-child(3) { animation-delay: -4s; }
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-15px) rotate(3deg); }
-        }
-    </style>
-</head>
-<body class="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
+{% extends 'base.html' %}
+{% block title %}
+<title>SmartAgri - register</title>
+{% endblock %}
+{% block content %}
     <div class="min-h-screen flex">
         <!-- Left Side - Form -->
         <div class="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8">
@@ -52,11 +28,12 @@
                                 Email Address
                             </label>
                             <div class="relative">
-                                <input 
-                                    id="email" 
-                                    name="email" 
-                                    type="email" 
-                                    required 
+                                <input
+                                    id="email"
+                                    name="email"
+                                    type="email"
+                                    value="{{ request.form.email }}"
+                                    required
                                     class="w-full px-4 py-3 pl-11 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
                                     placeholder="Enter your email"
                                 >
@@ -70,11 +47,12 @@
                                 Password
                             </label>
                             <div class="relative">
-                                <input 
-                                    id="password" 
-                                    name="password" 
-                                    type="password" 
-                                    required 
+                                <input
+                                    id="password"
+                                    name="password"
+                                    type="password"
+                                    value="{{ request.form.password }}"
+                                    required
                                     class="w-full px-4 py-3 pl-11 pr-11 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
                                     placeholder="Enter your password"
                                 >
@@ -88,10 +66,10 @@
                         <!-- Remember Me & Forgot Password -->
                         <div class="flex items-center justify-between">
                             <div class="flex items-center">
-                                <input 
-                                    id="remember" 
-                                    name="remember" 
-                                    type="checkbox" 
+                                <input
+                                    id="remember"
+                                    name="remember"
+                                    type="checkbox"
                                     class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
                                 >
                                 <label for="remember" class="ml-2 block text-sm text-gray-700">
@@ -106,14 +84,25 @@
 
                     <!-- Submit Button -->
                     <div>
-                        <button 
-                            type="submit" 
+                        <button
+                            type="submit"
                             class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200"
                         >
                             <i data-lucide="log-in" class="w-5 h-5 mr-2"></i>
                             Sign In
                         </button>
                     </div>
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                        <ul style="color:red">
+                            {% for message in messages %}
+                            <li>
+                                {{ message }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        {% endwith %}
 
                     <!-- Divider -->
                     <div class="relative my-6">
@@ -147,7 +136,7 @@
                 <div class="text-center">
                     <p class="text-sm text-gray-600">
                         Don't have an account?
-                        <a href="#" class="font-medium text-green-600 hover:text-green-500 ml-1">
+                        <a href="{{ url_for('register') }}" class="font-medium text-green-600 hover:text-green-500 ml-1">
                             Sign up for free
                         </a>
                     </p>
@@ -217,5 +206,4 @@
             lucide.createIcons();
         }
     </script>
-</body>
-</html>
+{% endblock %}

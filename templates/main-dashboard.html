@@ -1,33 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartAgri - Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        * { font-family: 'Inter', sans-serif; }
-        .crop-float { animation: cropFloat 8s ease-in-out infinite; }
-        .crop-float:nth-child(2) { animation-delay: -2s; }
-        .crop-float:nth-child(3) { animation-delay: -4s; }
-        @keyframes cropFloat {
-            0%, 100% { transform: translateY(0px) scale(1); }
-            50% { transform: translateY(-10px) scale(1.05); }
-        }
-        .weather-animation { animation: weatherPulse 4s ease-in-out infinite; }
-        @keyframes weatherPulse {
-            0%, 100% { opacity: 0.8; }
-            50% { opacity: 1; }
-        }
-        .gradient-bg {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(34, 197, 94, 0.05) 25%, rgba(101, 163, 13, 0.1) 50%, rgba(132, 204, 22, 0.05) 75%, rgba(16, 185, 129, 0.1) 100%);
-        }
-    </style>
-</head>
-<body class="bg-gradient-to-br from-green-50 via-white to-emerald-50 min-h-screen">
+{% extends 'base.html' %}
+{% block title %}
+<title>SmartAgri - Dashboard</title>
+{% endblock %}
+{% block content %}
     <div class="flex h-screen">
         <!-- Sidebar -->
         <div class="w-64 bg-white/80 backdrop-blur-md border-r border-green-200 flex flex-col">
@@ -87,11 +62,13 @@
                         <span class="text-white font-medium text-sm">JD</span>
                     </div>
                     <div class="flex-1">
-                        <p class="text-sm font-medium text-gray-700">John Farmer</p>
+                        <p class="text-sm font-medium text-gray-700">{{ current_user.name }}</p>
                         <p class="text-xs text-gray-500">Farmer</p>
                     </div>
-                    <button class="p-1 hover:bg-gray-100 rounded">
-                        <i data-lucide="more-vertical" class="w-4 h-4 text-gray-400"></i>
+                    <button class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white font-medium rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl">
+                        <a href="{{ url_for('logout') }}" class="p-1 rounded inline-flex items-center hover:underline font-semibold">
+                            Logout
+                        </a>
                     </button>
                 </div>
             </div>
@@ -411,5 +388,4 @@
             }
         });
     </script>
-</body>
-</html>
+{% endblock %}

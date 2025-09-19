@@ -1,23 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartAgri - Weather Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        * { font-family: 'Inter', sans-serif; }
-        .weather-icon { animation: weatherFloat 4s ease-in-out infinite; }
-        @keyframes weatherFloat {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-5px); }
-        }
-    </style>
-</head>
-<body class="bg-gradient-to-br from-blue-50 via-white to-blue-100 min-h-screen">
+{% extends 'base.html' %}
+{% block title %}
+<title>SmartAgri - Weather Dashboard</title>
+{% endblock %}
+{% block content %}
     <!-- Header -->
     <header class="bg-white/80 backdrop-blur-md border-b border-blue-200 px-8 py-4">
         <div class="flex items-center justify-between">
@@ -168,5 +153,4 @@
             }
         });
     </script>
-</body>
-</html>
+{% endblock %}

@@ -1,17 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartAgri - Crop Planning</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        * { font-family: 'Inter', sans-serif; }
-    </style>
-</head>
-<body class="bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 min-h-screen">
+{% extends 'base.html' %}
+{% block title %}
+<title>SmartAgri - Crop Planning</title>
+{% endblock %}
+{% block content %}
     <!-- Header -->
     <header class="bg-white/80 backdrop-blur-md border-b border-green-200 px-8 py-4">
         <div class="flex items-center justify-between">
@@ -98,5 +89,5 @@
     <script>
         lucide.createIcons();
     </script>
-</body>
-</html>
+{% endblock %}
+
