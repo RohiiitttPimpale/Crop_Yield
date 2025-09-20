@@ -24,6 +24,12 @@
 
                 <!-- Auth Buttons -->
                 <div class="flex items-center space-x-4">
+                    {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('dashboard') }}">
+                        <button class="px-6 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl">
+                            DASHBOARD
+                        </button>
+                    {% else %}
                     <a href="{{ url_for('login') }}">
                         <button class="px-4 py-2 text-green-700 hover:text-green-800 font-medium transition-colors">
                             Login
@@ -34,6 +40,7 @@
                             Get Started
                         </button>
                     </a>
+                    {% endif %}
                 </div>
             </div>
         </nav>
@@ -69,7 +76,11 @@
                     <a href="{{ url_for('login') }}">
                         <button class="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-lg font-semibold rounded-2xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105">
                             <i data-lucide="rocket" class="w-6 h-6 mr-3 inline"></i>
+                            {% if current_user.is_authenticated %}
+                            Go to Dashboard
+                            {% else %}
                             Start Free Trial
+                            {% endif %}
                         </button>
                     </a>
                     <button class="px-8 py-4 bg-white/80 backdrop-blur-sm text-gray-700 text-lg font-semibold rounded-2xl hover:bg-white transition-all duration-300 shadow-lg hover:shadow-xl border border-green-200">

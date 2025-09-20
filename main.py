@@ -37,18 +37,15 @@ with app.app_context():
 
 # Load models with error handling
 try:
-    if os.path.exists("model/rice_model.pkl") and os.path.exists("model/pipeline.pkl"):
-        model = joblib.load("model/rice_model.pkl")
-        pipeline = joblib.load("model/pipeline.pkl")
-        print("✅ Models loaded successfully")
-    else:
-        model = None
-        pipeline = None
-        print("❌ Model files not found. Yield prediction will not work.")
+    model = joblib.load("model/rice_model.pkl")
+    pipeline = joblib.load("model/pipeline.pkl")
+    print("✅ Models loaded successfully")
 except Exception as e:
     model = None
     pipeline = None
     print(f"❌ Error loading models: {e}")
+
+
 
 # Landing page route
 @app.route("/")
@@ -58,6 +55,8 @@ def home():
 # Login page route
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
     if request.method == "POST":
         email = request.form.get("email")
         password = request.form.get("password")
@@ -76,31 +75,40 @@ def login():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
     if request.method == "POST":
         name = request.form.get("fullname")
         email = request.form.get("email")
         password = request.form.get("password")
         confirm_password = request.form.get("confirm_password")
 
-        # Simple authentication (replace with real authentication)
         if email and password and name and confirm_password:
-            if password == confirm_password:# Basic validation
+            if db.session.execute(db.select(User).where(User.name == name)).scalar():
+                flash("This Username is used, try another name.")
+            if db.session.execute(db.select(User).where(User.email == email)).scalar():
+                flash("This is email is used, please try another email or do login")
+            if password == confirm_password:  # Basic validation
                 user = User(
                     name=name,
                     email=email,
                     password=password
                 )
                 db.session.add(user)
-                db.session.commit()
-                flash("register successful!", "success")
-                login_user(user)
+                try:
+                    db.session.commit()
+                except:
+                    pass
+                else:
+                    flash("register successful!", "success")
+                    login_user(user)
+                    return redirect("/")
                 return redirect(url_for("dashboard"))
             else:
                 flash("The Password and Confirm password is not same", "error")
         else:
             flash("Please enter both email and password.", "error")
     return render_template("register.html")
-
 
 @app.route("/logout")
 @login_required
