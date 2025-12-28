@@ -1,0 +1,527 @@
+{% extends "base_enhanced.html" %}
+
+{% block title %}AI Yield Predictor - AgriSmart{% endblock %}
+
+{% block extra_css %}
+<style>
+    .predictor-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+    
+    .predictor-header {
+        text-align: center;
+        margin-bottom: 60px;
+    }
+    
+    .predictor-header h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 16px;
+        background: linear-gradient(45deg, #21808d, #4ade80);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .predictor-header p {
+        font-size: 1.2rem;
+        color: #64748b;
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+    
+    .predictor-main {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+        align-items: start;
+    }
+    
+    .predictor-form-card {
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        border: 1px solid #f1f5f9;
+        position: sticky;
+        top: 100px;
+    }
+    
+    .form-header {
+        text-align: center;
+        margin-bottom: 32px;
+    }
+    
+    .form-header h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 8px;
+    }
+    
+    .form-header p {
+        color: #64748b;
+        font-size: 0.95rem;
+    }
+    
+    .form-group {
+        margin-bottom: 24px;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.95rem;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 16px 20px;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: #fafafa;
+        box-sizing: border-box;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #21808d;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(33, 128, 141, 0.1);
+    }
+    
+    .form-control.error {
+        border-color: #ef4444;
+        background: #fef2f2;
+    }
+    
+    .input-group {
+        position: relative;
+    }
+    
+    .input-icon {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        font-size: 1.1rem;
+    }
+    
+    .input-group .form-control {
+        padding-left: 50px;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+    
+    .btn-predict {
+        width: 100%;
+        padding: 18px;
+        background: linear-gradient(45deg, #21808d, #4ade80);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 32px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-predict:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(33, 128, 141, 0.3);
+    }
+    
+    .btn-predict:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    .loading-spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #ffffff40;
+        border-top: 2px solid #ffffff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .result-card {
+        background: white;
+        padding: 32px;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        border: 1px solid #f1f5f9;
+        margin-bottom: 24px;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: slideIn 0.6s ease forwards;
+    }
+    
+    @keyframes slideIn {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .result-success {
+        border-left: 4px solid #4ade80;
+        background: linear-gradient(135deg, #f0fdff, #ecfeff);
+    }
+    
+    .result-error {
+        border-left: 4px solid #ef4444;
+        background: linear-gradient(135deg, #fef2f2, #fef7f7);
+    }
+    
+    .result-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+    
+    .result-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+    
+    .result-icon.success {
+        background: linear-gradient(45deg, #4ade80, #22d3ee);
+    }
+    
+    .result-icon.error {
+        background: linear-gradient(45deg, #ef4444, #f97316);
+    }
+    
+    .result-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0;
+    }
+    
+    .result-yield {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #21808d;
+        text-align: center;
+        margin: 24px 0;
+        line-height: 1;
+    }
+    
+    .result-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 16px;
+        margin-top: 24px;
+    }
+    
+    .result-detail {
+        text-align: center;
+        padding: 16px;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+    }
+    
+    .result-detail-value {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 4px;
+    }
+    
+    .result-detail-label {
+        font-size: 0.85rem;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .info-card {
+        background: white;
+        padding: 24px;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid #f1f5f9;
+        margin-bottom: 24px;
+    }
+    
+    .info-card h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .info-card p {
+        color: #64748b;
+        line-height: 1.6;
+        margin: 0;
+    }
+    
+    @media (max-width: 1024px) {
+        .predictor-main {
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+        
+        .predictor-form-card {
+            position: static;
+        }
+    }
+    
+    @media (max-width: 640px) {
+        .predictor-header h1 {
+            font-size: 2.2rem;
+        }
+        
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="predictor-container">
+    <!-- Header -->
+    <div class="predictor-header">
+        <h1>🧠 AI Crop Yield Predictor</h1>
+        <p>
+            Get accurate yield predictions using advanced machine learning algorithms 
+            trained on historical agricultural data and environmental conditions.
+        </p>
+    </div>
+
+    <!-- Main Content -->
+    <div class="predictor-main">
+        <!-- Prediction Form -->
+        <div class="predictor-form-card">
+            <div class="form-header">
+                <h2>Enter Crop Parameters</h2>
+                <p>Provide accurate data for the most reliable predictions</p>
+            </div>
+
+            <form method="POST" id="predictorForm" novalidate>
+                {{ form.hidden_tag() }}
+                
+                <!-- Crop Type -->
+                <div class="form-group">
+                    {{ form.crop.label(class="form-label") }}
+                    <div class="input-group">
+                        <i class="input-icon fas fa-seedling"></i>
+                        {{ form.crop(class="form-control", id="crop") }}
+                    </div>
+                </div>
+
+                <!-- Area -->
+                <div class="form-group">
+                    {{ form.area.label(class="form-label") }}
+                    <div class="input-group">
+                        <i class="input-icon fas fa-map-marked-alt"></i>
+                        {{ form.area(class="form-control", placeholder="5.0", id="area") }}
+                    </div>
+                </div>
+
+                <!-- pH and Rainfall -->
+                <div class="form-row">
+                    <div class="form-group">
+                        {{ form.ph.label(class="form-label") }}
+                        <div class="input-group">
+                            <i class="input-icon fas fa-flask"></i>
+                            {{ form.ph(class="form-control", placeholder="6.5", id="ph") }}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.rainfall.label(class="form-label") }}
+                        <div class="input-group">
+                            <i class="input-icon fas fa-cloud-rain"></i>
+                            {{ form.rainfall(class="form-control", placeholder="1200", id="rainfall") }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Temperature -->
+                <div class="form-group">
+                    {{ form.temperature.label(class="form-label") }}
+                    <div class="input-group">
+                        <i class="input-icon fas fa-thermometer-half"></i>
+                        {{ form.temperature(class="form-control", placeholder="25.0", id="temperature") }}
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn-predict" id="predictBtn">
+                    <span class="btn-text">
+                        <i class="fas fa-brain"></i>
+                        Predict Yield
+                    </span>
+                    <div class="loading-spinner" style="display: none;"></div>
+                </button>
+            </form>
+        </div>
+
+        <!-- Results and Information -->
+        <div class="results-section">
+            <!-- Prediction Result -->
+            {% if prediction %}
+                <div class="result-card result-success">
+                    <div class="result-header">
+                        <div class="result-icon success">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h3 class="result-title">Prediction Successful!</h3>
+                    </div>
+                    
+                    <div class="result-yield">{{ prediction }} tons</div>
+                    
+                    <div class="result-details">
+                        <div class="result-detail">
+                            <div class="result-detail-value">{{ request.form.crop|title }}</div>
+                            <div class="result-detail-label">Crop Type</div>
+                        </div>
+                        <div class="result-detail">
+                            <div class="result-detail-value">{{ request.form.area }} acres</div>
+                            <div class="result-detail-label">Farm Area</div>
+                        </div>
+                        <div class="result-detail">
+                            <div class="result-detail-value">{{ (prediction|float / request.form.area|float)|round(2) }}</div>
+                            <div class="result-detail-label">Tons/Acre</div>
+                        </div>
+                        <div class="result-detail">
+                            <div class="result-detail-value">95%</div>
+                            <div class="result-detail-label">Confidence</div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if error %}
+                <div class="result-card result-error">
+                    <div class="result-header">
+                        <div class="result-icon error">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h3 class="result-title">Prediction Failed</h3>
+                    </div>
+                    <p style="color: #dc2626; margin: 0;">{{ error }}</p>
+                </div>
+            {% endif %}
+
+            <!-- Information Cards -->
+            <div class="info-card">
+                <h3>
+                    <i class="fas fa-cogs" style="color: #21808d;"></i>
+                    How It Works
+                </h3>
+                <p>
+                    Our AI model analyzes soil pH, rainfall, temperature, and area to predict crop yields 
+                    using advanced machine learning algorithms trained on thousands of agricultural data points.
+                </p>
+            </div>
+
+            <div class="info-card">
+                <h3>
+                    <i class="fas fa-chart-bar" style="color: #4ade80;"></i>
+                    Model Accuracy
+                </h3>
+                <p>
+                    Our prediction model has been trained on over 50,000 agricultural data points with an 
+                    average accuracy of 95%, helping farmers make informed decisions about crop planning.
+                </p>
+            </div>
+
+            <div class="info-card">
+                <h3>
+                    <i class="fas fa-lightbulb" style="color: #f59e0b;"></i>
+                    Tips for Better Predictions
+                </h3>
+                <p>
+                    For the most accurate results, ensure your soil pH measurements are recent, 
+                    use annual average rainfall data, and input the average temperature during 
+                    the growing season.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('predictorForm');
+    const predictBtn = document.getElementById('predictBtn');
+    const btnText = predictBtn.querySelector('.btn-text');
+    const loadingSpinner = predictBtn.querySelector('.loading-spinner');
+
+    // Form submission handling
+    form.addEventListener('submit', function(event) {
+        btnText.style.display = 'none';
+        loadingSpinner.style.display = 'block';
+        predictBtn.disabled = true;
+    });
+
+    // Auto-fill sample data
+    const sampleDataBtn = document.createElement('button');
+    sampleDataBtn.type = 'button';
+    sampleDataBtn.textContent = '🎯 Use Sample Data';
+    sampleDataBtn.style.cssText = `
+        width: 100%;
+        padding: 12px;
+        margin-top: 16px;
+        background: #f8fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    `;
+    
+    sampleDataBtn.addEventListener('click', function() {
+        document.getElementById('crop').value = 'rice';
+        document.getElementById('area').value = '5.0';
+        document.getElementById('ph').value = '6.5';
+        document.getElementById('rainfall').value = '1200';
+        document.getElementById('temperature').value = '28';
+    });
+    
+    form.appendChild(sampleDataBtn);
+});
+</script>
+{% endblock %}

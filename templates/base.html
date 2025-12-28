@@ -1,16 +1,235 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% block title %} {% endblock %}
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="static/js/app.js">
+    <meta name="description" content="{% block description %}AI-powered crop yield prediction and farm management platform{% endblock %}">
+    <meta name="keywords" content="agriculture, farming, crop yield, AI, machine learning, weather">
+    <meta name="author" content="Rohit Pimpale">
+    
+    <!-- Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    
+    <!-- PWA Configuration -->
+    <meta name="theme-color" content="#21808d">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icon-192x192.png') }}">
+    
+    <title>{% block title %}AgriSmart - AI-Powered Farming{% endblock %}</title>
+    
+    <!-- Stylesheets -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
+    
+    {% block extra_css %}{% endblock %}
 </head>
-<body class="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
-{% block content %} {% endblock %}
-    <script src="static/js/app.js"></script>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar" role="navigation" aria-label="Main navigation">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="{{ url_for('home') }}" aria-label="AgriSmart Home">
+                    <i class="fas fa-seedling" aria-hidden="true"></i>
+                    <span>AgriSmart</span>
+                </a>
+            </div>
+            
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            
+            <div class="nav-menu" id="nav-menu">
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('dashboard') }}" class="nav-link">
+                        <i class="fas fa-chart-line" aria-hidden="true"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="{{ url_for('yield_predictor') }}" class="nav-link">
+                        <i class="fas fa-brain" aria-hidden="true"></i>
+                        <span>Predict Yield</span>
+                    </a>
+                    <a href="{{ url_for('weather') }}" class="nav-link">
+                        <i class="fas fa-cloud-sun" aria-hidden="true"></i>
+                        <span>Weather</span>
+                    </a>
+                    <a href="{{ url_for('crop_planning') }}" class="nav-link">
+                        <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                        <span>Planning</span>
+                    </a>
+                    <div class="nav-dropdown">
+                        <button class="nav-dropdown-btn" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-user-circle" aria-hidden="true"></i>
+                            <span>{{ current_user.username }}</span>
+                            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                        </button>
+                        <div class="nav-dropdown-menu" role="menu">
+                            <a href="{{ url_for('farmer_profile') }}" class="nav-dropdown-item" role="menuitem">
+                                <i class="fas fa-user" aria-hidden="true"></i>
+                                Profile
+                            </a>
+                            <a href="{{ url_for('prediction_history') }}" class="nav-dropdown-item" role="menuitem">
+                                <i class="fas fa-history" aria-hidden="true"></i>
+                                History
+                            </a>
+                            <hr class="nav-dropdown-divider">
+                            <a href="{{ url_for('logout') }}" class="nav-dropdown-item" role="menuitem">
+                                <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                                Logout
+                            </a>
+                        </div>
+                    </div>
+                {% else %}
+                    <a href="{{ url_for('home') }}" class="nav-link">
+                        <i class="fas fa-home" aria-hidden="true"></i>
+                        <span>Home</span>
+                    </a>
+                    <a href="{{ url_for('login') }}" class="nav-link">
+                        <i class="fas fa-sign-in-alt" aria-hidden="true"></i>
+                        <span>Login</span>
+                    </a>
+                    <a href="{{ url_for('register') }}" class="nav-link nav-link-primary">
+                        <i class="fas fa-user-plus" aria-hidden="true"></i>
+                        <span>Register</span>
+                    </a>
+                {% endif %}
+                
+                <!-- Theme Toggle -->
+                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle theme">
+                    <i class="fas fa-moon" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-container" role="alert" aria-live="polite">
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">
+                        <div class="flash-content">
+                            {% if category == 'error' %}
+                                <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+                            {% elif category == 'success' %}
+                                <i class="fas fa-check-circle" aria-hidden="true"></i>
+                            {% elif category == 'info' %}
+                                <i class="fas fa-info-circle" aria-hidden="true"></i>
+                            {% else %}
+                                <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+                            {% endif %}
+                            <span>{{ message }}</span>
+                        </div>
+                        <button class="flash-close" aria-label="Close notification">
+                            <i class="fas fa-times" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main id="main-content" role="main">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>AgriSmart</h3>
+                <p>Empowering farmers with AI-driven insights for better crop yields and sustainable farming practices.</p>
+                <div class="footer-social">
+                    <a href="#" aria-label="Facebook" class="social-link">
+                        <i class="fab fa-facebook" aria-hidden="true"></i>
+                    </a>
+                    <a href="#" aria-label="Twitter" class="social-link">
+                        <i class="fab fa-twitter" aria-hidden="true"></i>
+                    </a>
+                    <a href="https://linkedin.com/in/rohit-pimpale-746307377" aria-label="LinkedIn" class="social-link">
+                        <i class="fab fa-linkedin" aria-hidden="true"></i>
+                    </a>
+                    <a href="https://github.com/RohiiitttPimpale" aria-label="GitHub" class="social-link">
+                        <i class="fab fa-github" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Features</h4>
+                <ul class="footer-links">
+                    <li><a href="{{ url_for('yield_predictor') }}">Yield Prediction</a></li>
+                    <li><a href="{{ url_for('weather') }}">Weather Monitoring</a></li>
+                    <li><a href="{{ url_for('crop_planning') }}">Crop Planning</a></li>
+                    <li><a href="{{ url_for('dashboard') }}">Farm Dashboard</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Support</h4>
+                <ul class="footer-links">
+                    <li><a href="#help">Help Center</a></li>
+                    <li><a href="#contact">Contact Us</a></li>
+                    <li><a href="#docs">Documentation</a></li>
+                    <li><a href="#privacy">Privacy Policy</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Company</h4>
+                <ul class="footer-links">
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#careers">Careers</a></li>
+                    <li><a href="#blog">Blog</a></li>
+                    <li><a href="#press">Press</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <div class="footer-container">
+                <p>&copy; 2025 AgriSmart. Built with ❤️ by <a href="https://linkedin.com/in/rohit-pimpale-746307377">Rohit Pimpale</a>. All rights reserved.</p>
+                <div class="footer-legal">
+                    <a href="#terms">Terms of Service</a>
+                    <a href="#privacy">Privacy Policy</a>
+                    <a href="#cookies">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(function(registrationError) {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>

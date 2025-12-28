@@ -1,391 +1,543 @@
-{% extends 'base.html' %}
-{% block title %}
-<title>SmartAgri - Dashboard</title>
+{% extends "base_enhanced.html" %}
+
+{% block title %}Farm Dashboard - AgriSmart{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+    
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+    
+    .dashboard-title h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+    }
+    
+    .dashboard-subtitle {
+        color: #64748b;
+        font-size: 1.1rem;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 24px;
+        margin-bottom: 40px;
+    }
+    
+    .stat-card {
+        background: white;
+        padding: 32px;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid #f1f5f9;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--gradient);
+        border-radius: 16px 16px 0 0;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+    
+    .stat-card.acres { --gradient: linear-gradient(45deg, #4ade80, #22d3ee); }
+    .stat-card.varieties { --gradient: linear-gradient(45deg, #f59e0b, #ef4444); }
+    .stat-card.yield { --gradient: linear-gradient(45deg, #8b5cf6, #ec4899); }
+    .stat-card.revenue { --gradient: linear-gradient(45deg, #06b6d4, #3b82f6); }
+    
+    .stat-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        background: var(--gradient);
+        margin-bottom: 20px;
+    }
+    
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 8px;
+        line-height: 1;
+    }
+    
+    .stat-label {
+        color: #64748b;
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+    
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+    
+    .dashboard-card {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: 1px solid #f1f5f9;
+    }
+    
+    .card-header {
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0;
+    }
+    
+    .chart-container {
+        position: relative;
+        height: 300px;
+    }
+    
+    .weather-widget {
+        text-align: center;
+    }
+    
+    .weather-temp {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 8px;
+    }
+    
+    .weather-condition {
+        color: #64748b;
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+    }
+    
+    .weather-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-top: 20px;
+    }
+    
+    .weather-detail {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 12px;
+        background: #f8fafc;
+        border-radius: 8px;
+    }
+    
+    .weather-detail-label {
+        font-size: 0.85rem;
+        color: #64748b;
+        margin-bottom: 4px;
+    }
+    
+    .weather-detail-value {
+        font-weight: 600;
+        color: #1e293b;
+    }
+    
+    .crops-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 24px;
+        margin-bottom: 40px;
+    }
+    
+    .crop-card {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+        border: 1px solid #f1f5f9;
+        transition: all 0.3s ease;
+    }
+    
+    .crop-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .crop-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+    
+    .crop-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1e293b;
+    }
+    
+    .crop-area {
+        background: #f0f9ff;
+        color: #0284c7;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    
+    .crop-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+    
+    .status-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #22d3ee;
+    }
+    
+    .status-indicator.growing { background: #4ade80; }
+    .status-indicator.flowering { background: #f59e0b; }
+    .status-indicator.fruiting { background: #ef4444; }
+    .status-indicator.ready { background: #8b5cf6; }
+    
+    .crop-harvest {
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+    
+    .notification-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        transition: background 0.2s ease;
+    }
+    
+    .notification-item:hover {
+        background: #f8fafc;
+    }
+    
+    .notification-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        color: white;
+        flex-shrink: 0;
+    }
+    
+    .notification-icon.high { background: #ef4444; }
+    .notification-icon.medium { background: #f59e0b; }
+    .notification-icon.low { background: #4ade80; }
+    
+    .notification-content {
+        flex: 1;
+    }
+    
+    .notification-message {
+        color: #1e293b;
+        font-weight: 500;
+        margin-bottom: 4px;
+        line-height: 1.4;
+    }
+    
+    .notification-time {
+        color: #64748b;
+        font-size: 0.85rem;
+    }
+    
+    @media (max-width: 1024px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
 {% endblock %}
+
 {% block content %}
-    <div class="flex h-screen">
-        <!-- Sidebar -->
-        <div class="w-64 bg-white/80 backdrop-blur-md border-r border-green-200 flex flex-col">
-            <!-- Logo -->
-            <div class="p-6 border-b border-green-100">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                        <i data-lucide="sprout" class="w-6 h-6 text-white"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-lg font-bold text-gray-800">SmartAgri</h1>
-                        <p class="text-xs text-gray-500">AI-Powered Farming</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Navigation -->
-            <nav class="flex-1 p-4 space-y-2">
-                <a href="{{ url_for('dashboard') }}" class="nav-item active flex items-center space-x-3 px-4 py-3 rounded-xl text-green-700 bg-green-100 hover:bg-green-200 transition-all">
-                    <i data-lucide="home" class="w-5 h-5"></i>
-                    <span class="font-medium">Dashboard</span>
-                </a>
-                <a href="{{ url_for('farmer_profile') }}" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-100 transition-all">
-                    <i data-lucide="user" class="w-5 h-5"></i>
-                    <span class="font-medium">Farmer Profile</span>
-                </a>
-                <a href="{{ url_for('weather') }}" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-100 transition-all">
-                    <i data-lucide="cloud-rain" class="w-5 h-5"></i>
-                    <span class="font-medium">Weather</span>
-                </a>
-                <a href="{{ url_for('crop_planning') }}" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-100 transition-all">
-                    <i data-lucide="calendar" class="w-5 h-5"></i>
-                    <span class="font-medium">Crop Planning</span>
-                </a>
-                <a href="{{ url_for('yield_predictor') }}" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-100 transition-all">
-                    <i data-lucide="brain" class="w-5 h-5"></i>
-                    <span class="font-medium">AI Predictions</span>
-                </a>
-                <a href="{{ url_for('yield_records') }}" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-100 transition-all">
-                    <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
-                    <span class="font-medium">Yield Records</span>
-                </a>
-                <a href="{{ url_for('recommendations') }}" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-100 transition-all">
-                    <i data-lucide="lightbulb" class="w-5 h-5"></i>
-                    <span class="font-medium">Recommendations</span>
-                </a>
-                <a href="{{ url_for('reports') }}" class="nav-item flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-100 transition-all">
-                    <i data-lucide="file-text" class="w-5 h-5"></i>
-                    <span class="font-medium">Reports</span>
-                </a>
-            </nav>
-
-            <!-- User Profile -->
-            <div class="p-4 border-t border-green-100">
-                <div class="flex items-center space-x-3 px-4 py-3">
-                    <div class="w-10 h-10 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
-                        <span class="text-white font-medium text-sm">JD</span>
-                    </div>
-                    <div class="flex-1">
-                        <p class="text-sm font-medium text-gray-700">{{ current_user.name }}</p>
-                        <p class="text-xs text-gray-500">Farmer</p>
-                    </div>
-                    <button class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white font-medium rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl">
-                        <a href="{{ url_for('logout') }}" class="p-1 rounded inline-flex items-center hover:underline font-semibold">
-                            Logout
-                        </a>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main Content -->
-        <div class="flex-1 flex flex-col overflow-hidden">
-            <!-- Header -->
-            <header class="bg-white/80 backdrop-blur-md border-b border-green-200 px-8 py-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h2 class="text-2xl font-bold text-gray-800">Dashboard</h2>
-                        <p class="text-gray-600">Welcome back, Farmer!</p>
-                    </div>
-                    <div class="flex items-center space-x-4">
-                        <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                            <i data-lucide="bell" class="w-5 h-5 text-gray-600"></i>
-                        </button>
-                        <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                            <i data-lucide="settings" class="w-5 h-5 text-gray-600"></i>
-                        </button>
-                        <div class="h-6 w-px bg-gray-300"></div>
-                        <select class="text-sm border-0 bg-transparent text-gray-600 focus:ring-0">
-                            <option>EN</option>
-                            <option>HI</option>
-                        </select>
-                    </div>
-                </div>
-            </header>
-
-            <!-- Main Content Area -->
-            <main class="flex-1 overflow-y-auto p-8">
-                <!-- Hero Section -->
-                <div class="gradient-bg rounded-3xl p-8 mb-8 relative overflow-hidden">
-                    <div class="relative z-10">
-                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Smart Farming with AI</h1>
-                        <p class="text-xl text-gray-600 mb-6 max-w-2xl">
-                            Monitor your crops, predict yields, and optimize your farming decisions with our AI-powered platform.
-                        </p>
-                        <button onclick="window.location.href='{{ url_for('yield_predictor') }}'" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-medium rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl">
-                            <i data-lucide="zap" class="w-5 h-5 mr-2"></i>
-                            Get AI Predictions
-                        </button>
-                    </div>
-
-                    <!-- Floating elements -->
-                    <div class="absolute top-8 right-8 crop-float opacity-20">
-                        <i data-lucide="leaf" class="w-16 h-16 text-green-600"></i>
-                    </div>
-                    <div class="absolute bottom-8 right-24 crop-float opacity-15">
-                        <i data-lucide="sun" class="w-12 h-12 text-yellow-500"></i>
-                    </div>
-                </div>
-
-                <!-- Stats Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <!-- Total Area -->
-                    <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-green-100 hover:shadow-lg transition-all duration-300">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="p-3 bg-green-100 rounded-xl">
-                                <i data-lucide="map" class="w-6 h-6 text-green-600"></i>
-                            </div>
-                            <span class="text-sm text-gray-500">Total Area</span>
-                        </div>
-                        <div class="space-y-1">
-                            <div class="text-3xl font-bold text-gray-800">25.4</div>
-                            <div class="text-sm text-gray-600">acres</div>
-                        </div>
-                    </div>
-
-                    <!-- Active Crops -->
-                    <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-blue-100 hover:shadow-lg transition-all duration-300">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="p-3 bg-blue-100 rounded-xl">
-                                <i data-lucide="sprout" class="w-6 h-6 text-blue-600"></i>
-                            </div>
-                            <span class="text-sm text-gray-500">Active Crops</span>
-                        </div>
-                        <div class="space-y-1">
-                            <div class="text-3xl font-bold text-gray-800">8</div>
-                            <div class="text-sm text-gray-600">varieties</div>
-                        </div>
-                    </div>
-
-                    <!-- Predicted Yield -->
-                    <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-purple-100 hover:shadow-lg transition-all duration-300">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="p-3 bg-purple-100 rounded-xl">
-                                <i data-lucide="trending-up" class="w-6 h-6 text-purple-600"></i>
-                            </div>
-                            <span class="text-sm text-gray-500">Predicted Yield</span>
-                        </div>
-                        <div class="space-y-1">
-                            <div class="text-3xl font-bold text-gray-800">4.2</div>
-                            <div class="text-sm text-gray-600">tons</div>
-                        </div>
-                    </div>
-
-                    <!-- Revenue -->
-                    <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-yellow-100 hover:shadow-lg transition-all duration-300">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="p-3 bg-yellow-100 rounded-xl">
-                                <i data-lucide="indian-rupee" class="w-6 h-6 text-yellow-600"></i>
-                            </div>
-                            <span class="text-sm text-gray-500">Revenue</span>
-                        </div>
-                        <div class="space-y-1">
-                            <div class="text-3xl font-bold text-gray-800">₹1.2L</div>
-                            <div class="text-sm text-gray-600">estimated</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Main Dashboard Grid -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <!-- Weather Today -->
-                    <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-blue-100">
-                        <div class="flex items-center justify-between mb-6">
-                            <h3 class="text-lg font-semibold text-gray-800">Weather Today</h3>
-                            <div class="weather-animation">
-                                <i data-lucide="sun" class="w-6 h-6 text-yellow-500"></i>
-                            </div>
-                        </div>
-
-                        <div class="text-center mb-6">
-                            <div class="text-4xl font-bold text-gray-800 mb-2">28°C</div>
-                            <div class="text-gray-600">Partly Cloudy</div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4 text-sm">
-                            <div class="flex items-center space-x-2">
-                                <i data-lucide="droplets" class="w-4 h-4 text-blue-500"></i>
-                                <span class="text-gray-600">Humidity: 65%</span>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <i data-lucide="wind" class="w-4 h-4 text-gray-500"></i>
-                                <span class="text-gray-600">Wind: 12 km/h</span>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <i data-lucide="cloud-rain" class="w-4 h-4 text-blue-500"></i>
-                                <span class="text-gray-600">Rain: 20%</span>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <i data-lucide="gauge" class="w-4 h-4 text-gray-500"></i>
-                                <span class="text-gray-600">Pressure: 1013 hPa</span>
-                            </div>
-                        </div>
-
-                        <button onclick="window.location.href='{{ url_for('weather') }}'" class="w-full mt-4 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium">
-                            View Details
-                        </button>
-                    </div>
-
-                    <!-- Yield Predictions Chart -->
-                    <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-green-100">
-                        <div class="flex items-center justify-between mb-6">
-                            <h3 class="text-lg font-semibold text-gray-800">Yield Predictions</h3>
-                            <button onclick="window.location.href='{{ url_for('yield_predictor') }}'" class="text-green-600 hover:text-green-700 text-sm font-medium">
-                                View Details
-                            </button>
-                        </div>
-
-                        <div class="relative h-48">
-                            <canvas id="yieldChart"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Your Crops -->
-                    <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-emerald-100">
-                        <div class="flex items-center justify-between mb-6">
-                            <h3 class="text-lg font-semibold text-gray-800">Your Crops</h3>
-                            <button onclick="window.location.href='{{ url_for('crop_planning') }}'" class="text-emerald-600 hover:text-emerald-700 text-sm font-medium">
-                                Manage
-                            </button>
-                        </div>
-
-                        <div class="space-y-3">
-                            <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
-                                    <span class="text-gray-700 font-medium">Rice</span>
-                                </div>
-                                <span class="text-gray-600 text-sm">10 acres</span>
-                            </div>
-                            <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                                    <span class="text-gray-700 font-medium">Corn</span>
-                                </div>
-                                <span class="text-gray-600 text-sm">5 acres</span>
-                            </div>
-                            <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-3 h-3 bg-red-500 rounded-full"></div>
-                                    <span class="text-gray-700 font-medium">Tomatoes</span>
-                                </div>
-                                <span class="text-gray-600 text-sm">3 acres</span>
-                            </div>
-                            <div class="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
-                                    <span class="text-gray-700 font-medium">Grapes</span>
-                                </div>
-                                <span class="text-gray-600 text-sm">2 acres</span>
-                            </div>
-                            <div class="flex items-center justify-between p-3 bg-pink-50 rounded-lg">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-3 h-3 bg-pink-500 rounded-full"></div>
-                                    <span class="text-gray-700 font-medium">Apples</span>
-                                </div>
-                                <span class="text-gray-600 text-sm">3 acres</span>
-                            </div>
-                            <div class="flex items-center justify-between p-3 bg-emerald-50 rounded-lg">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-3 h-3 bg-emerald-500 rounded-full"></div>
-                                    <span class="text-gray-700 font-medium">Lettuce</span>
-                                </div>
-                                <span class="text-gray-600 text-sm">2 acres</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Smart Recommendations -->
-                <div class="mt-8">
-                    <div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-orange-100">
-                        <div class="flex items-center justify-between mb-6">
-                            <h3 class="text-lg font-semibold text-gray-800">Smart Recommendations</h3>
-                            <button onclick="window.location.href='{{ url_for('recommendations') }}'" class="text-orange-600 hover:text-orange-700 text-sm font-medium">
-                                View All
-                            </button>
-                        </div>
-
-                        <div class="space-y-4">
-                            <!-- Irrigation Alert -->
-                            <div class="flex items-start space-x-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                                <div class="p-2 bg-blue-100 rounded-lg">
-                                    <i data-lucide="droplets" class="w-5 h-5 text-blue-600"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <h4 class="font-medium text-gray-800 mb-1">Irrigation Alert</h4>
-                                    <p class="text-gray-600 text-sm mb-2">Your rice crop needs watering. Soil moisture is at 35%.</p>
-                                    <span class="text-xs text-gray-500">2 hours ago</span>
-                                </div>
-                            </div>
-
-                            <!-- Pest Warning -->
-                            <div class="flex items-start space-x-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                                <div class="p-2 bg-red-100 rounded-lg">
-                                    <i data-lucide="bug" class="w-5 h-5 text-red-600"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <h4 class="font-medium text-gray-800 mb-1">Pest Warning</h4>
-                                    <p class="text-gray-600 text-sm mb-2">Potential aphid outbreak detected in corn field. Apply treatment.</p>
-                                    <span class="text-xs text-gray-500">5 hours ago</span>
-                                </div>
-                            </div>
-
-                            <!-- Harvest Ready -->
-                            <div class="flex items-start space-x-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-                                <div class="p-2 bg-green-100 rounded-lg">
-                                    <i data-lucide="scissors" class="w-5 h-5 text-green-600"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <h4 class="font-medium text-gray-800 mb-1">Harvest Ready</h4>
-                                    <p class="text-gray-600 text-sm mb-2">Tomatoes are ready for harvest. Optimal time is this week.</p>
-                                    <span class="text-xs text-gray-500">1 day ago</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </main>
+<div class="dashboard-container">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="dashboard-title">
+            <h1>Welcome back, {{ current_user.username }}! 👨‍🌾</h1>
+            <p class="dashboard-subtitle">Here's what's happening on your farm today</p>
         </div>
     </div>
 
-    <script>
-        // Initialize Lucide icons
-        lucide.createIcons();
+    <!-- Farm Statistics -->
+    <div class="stats-grid">
+        <div class="stat-card acres">
+            <div class="stat-icon">
+                <i class="fas fa-map-marked-alt"></i>
+            </div>
+            <div class="stat-value">25.4</div>
+            <div class="stat-label">Total Acres</div>
+        </div>
 
-        // Initialize Chart.js
-        const ctx = document.getElementById('yieldChart').getContext('2d');
-        const yieldChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [
-                    {
-                        label: 'Predicted Yield (tons)',
-                        data: [3.2, 3.8, 4.1, 4.5, 4.8, 5.2],
-                        borderColor: 'rgb(16, 185, 129)',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        tension: 0.4
-                    },
-                    {
-                        label: 'Actual Yield (tons)',
-                        data: [3.0, 3.5, 3.9, 4.2, 4.4, null],
-                        borderColor: 'rgb(59, 130, 246)',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        tension: 0.4
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    }
+        <div class="stat-card varieties">
+            <div class="stat-icon">
+                <i class="fas fa-seedling"></i>
+            </div>
+            <div class="stat-value">8</div>
+            <div class="stat-label">Crop Varieties</div>
+        </div>
+
+        <div class="stat-card yield">
+            <div class="stat-icon">
+                <i class="fas fa-chart-bar"></i>
+            </div>
+            <div class="stat-value">4.2</div>
+            <div class="stat-label">Avg Yield (tons)</div>
+        </div>
+
+        <div class="stat-card revenue">
+            <div class="stat-icon">
+                <i class="fas fa-rupee-sign"></i>
+            </div>
+            <div class="stat-value">₹1.2L</div>
+            <div class="stat-label">Estimated Revenue</div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Grid -->
+    <div class="dashboard-grid">
+        <!-- Yield Analytics Chart -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3 class="card-title">Yield Performance Trends</h3>
+            </div>
+            <div class="chart-container">
+                <canvas id="yieldChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Weather Widget -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3 class="card-title">Current Weather</h3>
+            </div>
+            <div class="weather-widget">
+                <div class="weather-temp">28°C</div>
+                <div class="weather-condition">
+                    <i class="fas fa-cloud-sun" style="color: #f59e0b; margin-right: 8px;"></i>
+                    Partly Cloudy
+                </div>
+                
+                <div class="weather-details">
+                    <div class="weather-detail">
+                        <div class="weather-detail-label">Humidity</div>
+                        <div class="weather-detail-value">65%</div>
+                    </div>
+                    <div class="weather-detail">
+                        <div class="weather-detail-label">Wind</div>
+                        <div class="weather-detail-value">12 km/h</div>
+                    </div>
+                    <div class="weather-detail">
+                        <div class="weather-detail-label">Rain</div>
+                        <div class="weather-detail-value">20%</div>
+                    </div>
+                    <div class="weather-detail">
+                        <div class="weather-detail-label">Pressure</div>
+                        <div class="weather-detail-value">1013 hPa</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Current Crops -->
+    <div class="dashboard-card" style="margin-bottom: 40px;">
+        <div class="card-header">
+            <h3 class="card-title">Your Current Crops</h3>
+        </div>
+        <div class="crops-grid">
+            <div class="crop-card">
+                <div class="crop-header">
+                    <div class="crop-name">Rice</div>
+                    <div class="crop-area">10 acres</div>
+                </div>
+                <div class="crop-status">
+                    <div class="status-indicator growing"></div>
+                    <span>Growing</span>
+                </div>
+                <div class="crop-harvest">Expected harvest: November 2025</div>
+            </div>
+
+            <div class="crop-card">
+                <div class="crop-header">
+                    <div class="crop-name">Corn</div>
+                    <div class="crop-area">5 acres</div>
+                </div>
+                <div class="crop-status">
+                    <div class="status-indicator flowering"></div>
+                    <span>Flowering</span>
+                </div>
+                <div class="crop-harvest">Expected harvest: December 2025</div>
+            </div>
+
+            <div class="crop-card">
+                <div class="crop-header">
+                    <div class="crop-name">Tomatoes</div>
+                    <div class="crop-area">3 acres</div>
+                </div>
+                <div class="crop-status">
+                    <div class="status-indicator fruiting"></div>
+                    <span>Fruiting</span>
+                </div>
+                <div class="crop-harvest">Expected harvest: October 2025</div>
+            </div>
+
+            <div class="crop-card">
+                <div class="crop-header">
+                    <div class="crop-name">Lettuce</div>
+                    <div class="crop-area">2 acres</div>
+                </div>
+                <div class="crop-status">
+                    <div class="status-indicator ready"></div>
+                    <span>Ready</span>
+                </div>
+                <div class="crop-harvest">Ready for harvest now!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications and Alerts -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3 class="card-title">Smart Recommendations</h3>
+        </div>
+        
+        <div class="notification-item">
+            <div class="notification-icon high">
+                <i class="fas fa-tint"></i>
+            </div>
+            <div class="notification-content">
+                <div class="notification-message">
+                    Your rice crop needs watering. Soil moisture is at 35%.
+                </div>
+                <div class="notification-time">2 hours ago</div>
+            </div>
+        </div>
+
+        <div class="notification-item">
+            <div class="notification-icon medium">
+                <i class="fas fa-bug"></i>
+            </div>
+            <div class="notification-content">
+                <div class="notification-message">
+                    Potential aphid outbreak detected in corn field. Apply treatment.
+                </div>
+                <div class="notification-time">5 hours ago</div>
+            </div>
+        </div>
+
+        <div class="notification-item">
+            <div class="notification-icon low">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="notification-content">
+                <div class="notification-message">
+                    Tomatoes are ready for harvest. Optimal time is this week.
+                </div>
+                <div class="notification-time">1 day ago</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Yield Performance Chart
+const ctx = document.getElementById('yieldChart').getContext('2d');
+const yieldChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        datasets: [{
+            label: 'Yield (tons per acre)',
+            data: [3.2, 3.5, 3.8, 4.1, 4.3, 4.0, 4.2, 4.5, 4.3, 4.4, 4.2, 4.1],
+            borderColor: '#4ade80',
+            backgroundColor: 'rgba(74, 222, 128, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#4ade80',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 6,
+            pointHoverRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: false,
+                min: 3.0,
+                max: 5.0,
+                grid: {
+                    color: '#f1f5f9'
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
+                ticks: {
+                    color: '#64748b'
+                }
+            },
+            x: {
+                grid: {
+                    display: false
+                },
+                ticks: {
+                    color: '#64748b'
                 }
             }
-        });
-    </script>
+        }
+    }
+});
+</script>
 {% endblock %}

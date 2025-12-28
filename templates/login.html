@@ -1,0 +1,409 @@
+{% extends "base_enhanced.html" %}
+
+{% block title %}Login - AgriSmart{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%);
+        padding: 20px;
+    }
+    
+    .auth-card {
+        background: white;
+        padding: 48px;
+        border-radius: 24px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        border: 1px solid #f1f5f9;
+        width: 100%;
+        max-width: 440px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .auth-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(45deg, #21808d, #4ade80);
+    }
+    
+    .auth-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    
+    .auth-logo {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(45deg, #21808d, #4ade80);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 24px;
+        font-size: 2rem;
+        color: white;
+        box-shadow: 0 10px 30px rgba(33, 128, 141, 0.3);
+    }
+    
+    .auth-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 8px;
+    }
+    
+    .auth-subtitle {
+        color: #64748b;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+    
+    .form-group {
+        margin-bottom: 24px;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.95rem;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 16px 20px;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: #fafafa;
+        box-sizing: border-box;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #21808d;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(33, 128, 141, 0.1);
+    }
+    
+    .form-control.error {
+        border-color: #ef4444;
+        background: #fef2f2;
+    }
+    
+    .input-group {
+        position: relative;
+    }
+    
+    .input-icon {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        font-size: 1.1rem;
+        z-index: 2;
+    }
+    
+    .input-group .form-control {
+        padding-left: 50px;
+    }
+    
+    .password-toggle {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #9ca3af;
+        cursor: pointer;
+        font-size: 1.1rem;
+        transition: color 0.2s ease;
+        z-index: 2;
+    }
+    
+    .password-toggle:hover {
+        color: #21808d;
+    }
+    
+    .form-error {
+        margin-top: 6px;
+        font-size: 0.85rem;
+        color: #ef4444;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .form-options {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+    }
+    
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: #21808d;
+    }
+    
+    .checkbox-label {
+        font-size: 0.9rem;
+        color: #64748b;
+    }
+    
+    .forgot-link {
+        color: #21808d;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+    
+    .forgot-link:hover {
+        color: #1e6b77;
+    }
+    
+    .btn-auth {
+        width: 100%;
+        padding: 18px;
+        background: linear-gradient(45deg, #21808d, #4ade80);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 24px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-auth:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(33, 128, 141, 0.3);
+    }
+    
+    .btn-auth:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .loading-spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #ffffff40;
+        border-top: 2px solid #ffffff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .auth-footer {
+        text-align: center;
+        margin-top: 32px;
+    }
+    
+    .auth-link {
+        color: #64748b;
+        text-decoration: none;
+        font-size: 0.95rem;
+    }
+    
+    .auth-link a {
+        color: #21808d;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+    
+    .auth-link a:hover {
+        color: #1e6b77;
+    }
+    
+    .security-notice {
+        background: #f0f9ff;
+        border: 1px solid #bae6fd;
+        border-radius: 8px;
+        padding: 12px;
+        margin-top: 24px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.85rem;
+        color: #0369a1;
+    }
+    
+    @media (max-width: 640px) {
+        .auth-card {
+            padding: 32px 24px;
+            margin: 0;
+            border-radius: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .auth-container {
+            padding: 0;
+        }
+        
+        .auth-title {
+            font-size: 1.8rem;
+        }
+        
+        .form-options {
+            flex-direction: column;
+            gap: 16px;
+            align-items: flex-start;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-logo">
+                <i class="fas fa-seedling"></i>
+            </div>
+            <h1 class="auth-title">Welcome Back</h1>
+            <p class="auth-subtitle">
+                Sign in to your AgriSmart account to access your farm dashboard 
+                and AI-powered agricultural insights.
+            </p>
+        </div>
+
+        <form method="POST" class="auth-form" id="loginForm" novalidate>
+            {{ form.hidden_tag() }}
+            
+            <!-- Email Field -->
+            <div class="form-group">
+                {{ form.email.label(class="form-label") }}
+                <div class="input-group">
+                    <i class="input-icon fas fa-envelope"></i>
+                    {{ form.email(class="form-control", placeholder="Enter your email address", autocomplete="email") }}
+                </div>
+                {% if form.email.errors %}
+                    <div class="form-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {{ form.email.errors[0] }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Password Field -->
+            <div class="form-group">
+                {{ form.password.label(class="form-label") }}
+                <div class="input-group">
+                    <i class="input-icon fas fa-lock"></i>
+                    {{ form.password(class="form-control", placeholder="Enter your password", autocomplete="current-password") }}
+                    <button type="button" class="password-toggle" id="passwordToggle">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                {% if form.password.errors %}
+                    <div class="form-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {{ form.password.errors[0] }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Form Options -->
+            <div class="form-options">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember" class="checkbox-label">Remember me</label>
+                </div>
+                <a href="#forgot-password" class="forgot-link">Forgot password?</a>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn-auth" id="loginBtn">
+                <span class="btn-text">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Sign In
+                </span>
+                <div class="loading-spinner" style="display: none;"></div>
+            </button>
+
+            <!-- Security Notice -->
+            <div class="security-notice">
+                <i class="fas fa-shield-alt"></i>
+                <span>Your connection is secure and encrypted</span>
+            </div>
+        </form>
+
+        <!-- Footer -->
+        <div class="auth-footer">
+            <p class="auth-link">
+                Don't have an account? 
+                <a href="{{ url_for('register') }}">Create one now</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('loginForm');
+    const loginBtn = document.getElementById('loginBtn');
+    const btnText = loginBtn.querySelector('.btn-text');
+    const loadingSpinner = loginBtn.querySelector('.loading-spinner');
+    const passwordToggle = document.getElementById('passwordToggle');
+    const passwordField = form.querySelector('input[name="password"]');
+
+    // Password visibility toggle
+    passwordToggle.addEventListener('click', function() {
+        const type = passwordField.type === 'password' ? 'text' : 'password';
+        passwordField.type = type;
+        
+        const icon = this.querySelector('i');
+        icon.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+    });
+
+    // Form submission handling
+    form.addEventListener('submit', function(event) {
+        btnText.style.display = 'none';
+        loadingSpinner.style.display = 'block';
+        loginBtn.disabled = true;
+    });
+
+    // Auto-focus on email field
+    const emailField = form.querySelector('input[name="email"]');
+    emailField.focus();
+});
+</script>
+{% endblock %}
